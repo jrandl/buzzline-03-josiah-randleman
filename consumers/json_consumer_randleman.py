@@ -39,7 +39,6 @@ load_dotenv()
 # Getter Functions for .env Variables
 #####################################
 
-
 def get_kafka_topic() -> str:
     """Fetch Kafka topic from environment or use default."""
     topic = os.getenv("BUZZ_TOPIC", "unknown_topic")
@@ -70,6 +69,16 @@ author_counts = defaultdict(int)
 # Function to process a single message
 # #####################################
 
+#####################################
+# Define Buzz Keywords for Alerting
+#####################################
+BUZZ_KEYWORDS = {
+    "Machine learning", "Cloud computing", "AI ethics", "Cybersecurity",
+    "Data science", "Data privacy", "Big data", "Automation", "DevOps",
+    "Microservices", "Security", "Distributed computing", "Deep learning",
+    "Data engineering", "Artificial intelligence", "Open-source",
+    "Test-driven development", "Cloud security", "Serverless computing"
+}
 
 def process_message(message: str) -> None:
     """
@@ -92,6 +101,7 @@ def process_message(message: str) -> None:
         if isinstance(message_dict, dict):
             # Extract the 'author' field from the Python dictionary
             author = message_dict.get("author", "unknown")
+            message_text = message_dict.get("message", "")
             logger.info(f"Message received from author: {author}")
 
             # Increment the count for the author
@@ -99,6 +109,12 @@ def process_message(message: str) -> None:
 
             # Log the updated counts
             logger.info(f"Updated author counts: {dict(author_counts)}")
+
+            # Check if the message contains any buzz keywords
+            for buzzword in BUZZ_KEYWORDS:
+                if buzzword.lower() in message_text.lower():
+                    logger.critical(f"🚨 BUZZ ALERT: '{message_text}' from {author} contains '{buzzword}'!")
+
         else:
             logger.error(f"Expected a dictionary but got: {type(message_dict)}")
 
