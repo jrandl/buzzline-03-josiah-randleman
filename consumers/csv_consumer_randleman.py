@@ -7,6 +7,12 @@ Example Kafka message format:
 {"timestamp": "2025-01-11T18:15:00Z", "temperature": 225.0}
 
 """
+#####################################
+# Define Alert Thresholds
+#####################################
+HIGH_TEMP_THRESHOLD = 101.0  # 🔥 Alert if above 275°F
+LOW_TEMP_THRESHOLD = 100.0 
+
 
 #####################################
 # Import Modules
@@ -133,6 +139,15 @@ def process_message(message: str, rolling_window: deque, window_size: int) -> No
 
         # Append the temperature reading to the rolling window
         rolling_window.append(temperature)
+
+               # 🚨 High Temperature Alert
+        if temperature >= HIGH_TEMP_THRESHOLD:
+            logger.critical(f"🔥 HIGH TEMP ALERT at {timestamp}: {temperature}°F!")
+
+        # ⚠️ Low Temperature Alert
+        if temperature <= LOW_TEMP_THRESHOLD:
+            logger.warning(f"⚠️ LOW TEMP WARNING at {timestamp}: {temperature}°F!")
+
 
         # Check for a stall
         if detect_stall(rolling_window):
